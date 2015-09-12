@@ -9,31 +9,31 @@
 import Foundation
 import QuartzCore
 
-public protocol ITimerClock {
-  /// Return a measure, in real time, of how long we have run
-  var time : Double { get }
-  /// The real-time length of the last frame
-  var frameTime : Double { get }
-  
-  /// Create a timer
-  func createTimer() -> Timer
-  
-  // Update the clock for this frame
-  func frameUpdate()
-}
+//public protocol ITimerClock {
+//  /// Return a measure, in real time, of how long we have run
+//  var time : Double { get }
+//  /// The real-time length of the last frame
+//  var frameTime : Double { get }
+//  
+//  /// Create a timer
+//  func createTimer() -> Timer
+//  
+//  // Update the clock for this frame
+//  func frameUpdate()
+//}
+//
+//public protocol Timer {
+//  var elapsed : Double { get }
+//}
 
-public protocol Timer {
-  var elapsed : Double { get }
-}
+public let Clock = TimerClock()
 
-public let Clock : ITimerClock = TimerClock()
-
-private class TimerClock : ITimerClock {
+public class TimerClock {
   var time : Double { return timeBases["Real"]! }
   var frameTime : Double = 0
   
-  private var startTime : Double
-  private var started : Bool = false
+  var startTime : Double
+  var started : Bool = false
   
   var timeBases : [String: Double] = [
     "Real": 0,
@@ -44,8 +44,7 @@ private class TimerClock : ITimerClock {
   }
   
   func createTimer() -> Timer {
-    return TimerImpl(clock: self, baseTime: timeBases["Real"]!,
-      duration: 0, scale: 1)
+    return Timer(clock: self, baseTime: timeBases["Real"]!, scale: 1)
   }
   
   func frameUpdate() {
@@ -60,21 +59,13 @@ private class TimerClock : ITimerClock {
   }
 }
 
-private struct TimerImpl : Timer {
+public struct Timer {
   let clock : TimerClock
   let baseTime : Double
-  let duration : Double
   let scale : Double
-//  let category : TimerCategory
-  
+
   var elapsed : Double {
     print(scale)
     return scale*(clock.timeBases["Real"]!-baseTime)
   }
-  var remaining : Double {
-    return duration - elapsed
-  }
-  var isDone : Bool { return remaining < 0 }
-  var frameTime : Double { return clock.frameTime*scale }
-  var fraction : Double { return max(0, min(elapsed / duration, 1.0)) }
 }

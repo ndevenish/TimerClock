@@ -10,8 +10,12 @@ import XCTest
 @testable import TestClock
 
 class TestClockTests: XCTestCase {
-    func testExample() {
+    func testScale() {
       let timer = Clock.createTimer()
-      XCTAssert(timer.elapsed > 0)
+      XCTAssert(Clock.timeBases.count != 0)
+      NSThread.sleepForTimeInterval(5)
+      Clock.frameUpdate()
+      XCTAssert(timer.scale == 1)
+      XCTAssert(timer.elapsed > 3)
     }
 }
