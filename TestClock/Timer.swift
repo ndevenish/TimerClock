@@ -9,10 +9,6 @@
 import Foundation
 import QuartzCore
 
-public enum TimerCategory {
-  case Real
-}
-
 public protocol ITimerClock {
   /// Return a measure, in real time, of how long we have run
   var time : Double { get }
@@ -33,14 +29,14 @@ public protocol Timer {
 public let Clock : ITimerClock = TimerClock()
 
 private class TimerClock : ITimerClock {
-  var time : Double { return timeBases[.Real]! }
+  var time : Double { return timeBases["Real"]! }
   var frameTime : Double = 0
   
   private var startTime : Double
   private var started : Bool = false
   
-  var timeBases : [TimerCategory: Double] = [
-    .Real: 0,
+  var timeBases : [String: Double] = [
+    "Real": 0,
   ]
   
   init() {
@@ -48,8 +44,8 @@ private class TimerClock : ITimerClock {
   }
   
   func createTimer() -> Timer {
-    return TimerImpl(clock: self, baseTime: timeBases[.Real]!,
-      duration: 0, scale: 1, category: .Real)
+    return TimerImpl(clock: self, baseTime: timeBases["Real"]!,
+      duration: 0, scale: 1)
   }
   
   func frameUpdate() {
@@ -58,9 +54,9 @@ private class TimerClock : ITimerClock {
       frameTime = 0
       started = true
     } else {
-      frameTime = time - startTime - timeBases[.Real]!
+      frameTime = time - startTime - timeBases["Real"]!
     }
-    timeBases[.Real] = CACurrentMediaTime()-startTime
+    timeBases["Real"] = CACurrentMediaTime()-startTime
   }
 }
 
@@ -69,11 +65,11 @@ private struct TimerImpl : Timer {
   let baseTime : Double
   let duration : Double
   let scale : Double
-  let category : TimerCategory
+//  let category : TimerCategory
   
   var elapsed : Double {
     print(scale)
-    return scale*(clock.timeBases[category]!-baseTime)
+    return scale*(clock.timeBases["Real"]!-baseTime)
   }
   var remaining : Double {
     return duration - elapsed
