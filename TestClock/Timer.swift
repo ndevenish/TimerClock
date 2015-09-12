@@ -9,21 +9,13 @@
 import Foundation
 import QuartzCore
 
-public enum TimerCategory {
-  case Real
-}
-
 public let Clock : TimerClock = TimerClock()
 
 public class TimerClock {
-  var time : Double { return timeBases[.Real]! }
-  var frameTime : Double = 0
-  
   private var startTime : Double
-  private var started : Bool = false
   
-  var timeBases : [TimerCategory: Double] = [
-  .Real: 0,
+  var timeBases : [String: Double] = [
+  "Real": 0,
   ]
   
   init() {
@@ -31,26 +23,17 @@ public class TimerClock {
   }
   
   func createTimer() -> Timer {
-    return Timer(clock: self, baseTime: timeBases[.Real]!,
-      duration: 0, scale: 1, category: .Real)
+    return Timer(clock: self, baseTime: timeBases["Real"]!, scale: 1)
   }
 }
 
 public struct Timer{
   let clock : TimerClock
   let baseTime : Double
-  let duration : Double
   let scale : Double
-  let category : TimerCategory
   
   var elapsed : Double {
     print(scale)
-    return scale*(clock.timeBases[category]!-baseTime)
+    return scale*(clock.timeBases["Real"]!-baseTime)
   }
-  var remaining : Double {
-    return duration - elapsed
-  }
-  var isDone : Bool { return remaining < 0 }
-  var frameTime : Double { return clock.frameTime*scale }
-  var fraction : Double { return max(0, min(elapsed / duration, 1.0)) }
 }
