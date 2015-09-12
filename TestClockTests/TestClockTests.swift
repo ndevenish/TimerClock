@@ -22,7 +22,7 @@ class TestClockTests: XCTestCase {
     }
     
     func testExample() {
-      let timer = Clock.createTimer(.Real, duration: -10)
+      let timer = Clock.createTimer()
       XCTAssert(timer.elapsed > 0)
     }
     

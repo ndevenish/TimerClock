@@ -11,9 +11,6 @@ import QuartzCore
 
 public enum TimerCategory {
   case Real
-  case Animation
-  case Frame
-  case Physics
 }
 
 public protocol ITimerClock {
@@ -23,7 +20,7 @@ public protocol ITimerClock {
   var frameTime : Double { get }
   
   /// Create a timer
-  func createTimer(category : TimerCategory, duration: Double, scale: Double) -> Timer
+  func createTimer() -> Timer
   
   // Update the clock for this frame
   func frameUpdate()
@@ -31,12 +28,6 @@ public protocol ITimerClock {
 
 public protocol Timer {
   var elapsed : Double { get }
-  var remaining : Double { get }
-  var isDone : Bool { get }
-  var scale : Double { get }
-  var category : TimerCategory { get }
-  var frameTime : Double { get }
-  var fraction : Double { get }
 }
 
 public let Clock : ITimerClock = TimerClock()
@@ -49,19 +40,16 @@ private class TimerClock : ITimerClock {
   private var started : Bool = false
   
   var timeBases : [TimerCategory: Double] = [
-  .Real: 0,
-  .Animation: 0,
-  .Frame: 0,
-  .Physics: 0
+    .Real: 0,
   ]
   
   init() {
     startTime = CACurrentMediaTime()
   }
   
-  func createTimer(category : TimerCategory, duration : Double, scale : Double) -> Timer {
-    return TimerImpl(clock: self, baseTime: timeBases[category]!,
-      duration: duration, scale: scale, category: category)
+  func createTimer() -> Timer {
+    return TimerImpl(clock: self, baseTime: timeBases[.Real]!,
+      duration: 0, scale: 1, category: .Real)
   }
   
   func frameUpdate() {
@@ -73,10 +61,6 @@ private class TimerClock : ITimerClock {
       frameTime = time - startTime - timeBases[.Real]!
     }
     timeBases[.Real] = CACurrentMediaTime()-startTime
-    
-    timeBases[.Animation] = timeBases[.Animation]! + frameTime
-    timeBases[.Physics] = timeBases[.Physics]! + frameTime
-    timeBases[.Frame] = timeBases[.Frame]! + 1
   }
 }
 
@@ -97,17 +81,4 @@ private struct TimerImpl : Timer {
   var isDone : Bool { return remaining < 0 }
   var frameTime : Double { return clock.frameTime*scale }
   var fraction : Double { return max(0, min(elapsed / duration, 1.0)) }
-}
-
-extension ITimerClock {
-  func createTimer() -> Timer {
-    return createTimer(.Real, duration: 0, scale: 1)
-  }
-  
-  func createTimer(category : TimerCategory) -> Timer {
-    return createTimer(category, duration: 0, scale: 1)
-  }
-  func createTimer(category : TimerCategory, duration : Double) -> Timer {
-    return createTimer(category, duration: duration, scale: 1)
-  }
 }
